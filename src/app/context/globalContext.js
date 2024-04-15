@@ -19,7 +19,7 @@ export const GlobalContextProvider = ({ children }) => {
       );
       setCities(response.data.results);
     } catch (error) {
-      console.error("Error fetching cities:", error);
+      console.log("Error fetching cities:", error);
     }
   };
 

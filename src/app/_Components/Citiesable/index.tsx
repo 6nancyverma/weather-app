@@ -34,8 +34,13 @@ function CitiesTable() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  if (!cities) {
-    return <div className="w-full text-center animate-pulse"> Loading...</div>;
+  if (cities >= 0) {
+    return (
+      <div className="w-full text-center text-[2rem] animate-pulse">
+        {" "}
+        Loading...
+      </div>
+    );
   }
   const sortedCities = Array.isArray(cities)
     ? cities.slice().sort((a, b) => {
@@ -117,7 +122,7 @@ function CitiesTable() {
                   <td className="py-3 px-4">
                     <Link
                       href={{
-                        pathname: `/weatherPage`,
+                        pathname: `/weatherForecast`,
                         query: {
                           lat: city.coordinates.lat,
                           lon: city.coordinates.lon,

@@ -1,31 +1,10 @@
-"use client";
-import React, { useEffect } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { MapContainer, TileLayer, useMap } from "react-leaflet";
+
 import { useGlobalContext } from "@/app/context/globalContext";
+import { useEffect } from "react";
 
-function FlyToActiveCity({ activeCityCords }: { activeCityCords: any }) {
-  const map = useMap();
-  console.log("activeCityCords<>>><><><><>", activeCityCords);
-  useEffect(() => {
-    if (activeCityCords) {
-      const zoomLev = 13;
-      const flyToOptions = {
-        duration: 1.5,
-      };
-
-      map.flyTo(
-        [activeCityCords.lat, activeCityCords.lon],
-        zoomLev,
-        flyToOptions
-      );
-    }
-  }, [activeCityCords, map]);
-
-  return null;
-}
-
-function Mapbox() {
+export default function Map() {
   const { forecast } = useGlobalContext();
 
   const activeCityCords = forecast?.coord;
@@ -36,6 +15,25 @@ function Mapbox() {
         <div className="animate-pulse rounded-lg m-4 h-80 bg-gray-300" />
       </div>
     );
+  }
+  function FlyToActiveCity({ activeCityCords }: { activeCityCords: any }) {
+    const map = useMap();
+    useEffect(() => {
+      if (activeCityCords) {
+        const zoomLev = 13;
+        const flyToOptions = {
+          duration: 1.5,
+        };
+
+        map.flyTo(
+          [activeCityCords.lat, activeCityCords.lon],
+          zoomLev,
+          flyToOptions
+        );
+      }
+    }, [activeCityCords, map]);
+
+    return null;
   }
 
   return (
@@ -57,5 +55,3 @@ function Mapbox() {
     </div>
   );
 }
-
-export default Mapbox;

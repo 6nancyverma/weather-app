@@ -20,7 +20,7 @@ function Temperature() {
 
   const { main, timezone, name, weather } = forecast;
 
-  // Live time update
+  // Live time update for date
   useEffect(() => {
     const interval = setInterval(() => {
       const localMoment = moment().utcOffset(timezone / 60);
@@ -35,7 +35,7 @@ function Temperature() {
   }, [timezone]);
 
   if (!forecast || !weather) {
-    return <div className=" animate-pulse p-6 flex w-full   " />;
+    return <div className="animate-pulse p-6 flex w-full " />;
   }
 
   const temp = kelvinToCelsius(main?.temp);

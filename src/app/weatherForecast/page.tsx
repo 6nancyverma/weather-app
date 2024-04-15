@@ -1,42 +1,37 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Temperature from "@/app/_Components/Temperature";
-import {
-  useGlobalContext,
-  useGlobalContextUpdate,
-} from "@/app/context/globalContext";
+import { useGlobalContextUpdate } from "@/app/context/globalContext";
 import Sunset from "@/app/_Components/Sunset";
 import Wind from "@/app/_Components/Wind";
 import FeelsLike from "@/app/_Components/FeelsLike";
 import Humidity from "@/app/_Components/Humidity";
 import Visibility from "@/app/_Components/Visibility";
-import Map from "@/app/_Components/Map";
 import { Phone } from "lucide-react";
 import AirPollution from "../_Components/AirPollution";
 import Pressure from "../_Components/Pressure";
+import dynamic from "next/dynamic";
 
-export default function WeatherPage({
+const DynamicMap = dynamic(() => import("@/app/_Components/Map"), {
+  ssr: false,
+});
+
+function WeatherForecast({
   searchParams,
 }: {
   searchParams: { lat: number; lon: number };
 }) {
-  const { activeCityCoords } = useGlobalContext();
   const { setActiveCityCoords } = useGlobalContextUpdate();
 
   useEffect(() => {
-    // Update activeCityCoords when searchParams change
     setActiveCityCoords([searchParams.lat, searchParams.lon]);
   }, [searchParams, setActiveCityCoords]);
-  console.log("activeCords--------", activeCityCoords);
-
-  console.log("params", searchParams.lat, " ", searchParams.lon);
 
   return (
     <>
       <main className="mx-[1rem] lg:mx-[2rem] xl:mx-[6rem] 2xl:mx-[16rem] m-auto py-5">
-        
         <div className="pb-4 flex flex-col gap-4 md:flex-row">
           <div className="flex flex-col gap-4 w-full min-w-[18rem] md:w-[35rem]">
             <Temperature />
@@ -53,8 +48,8 @@ export default function WeatherPage({
               <FeelsLike />
               <Humidity />
             </div>
-            <div className="mapbox-con mt-4 h-full flex gap-4">
-              <Map />
+            <div className="mt-4 w-full h-full flex justify-center">
+              <DynamicMap />
             </div>
           </div>
         </div>
@@ -80,3 +75,5 @@ export default function WeatherPage({
     </>
   );
 }
+
+export default WeatherForecast;
