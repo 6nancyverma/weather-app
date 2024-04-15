@@ -1,17 +1,13 @@
-import { useState } from "react";
 import CitiesTable from "../app/_Components/Citiesable";
-import Navbar from "./_Components/Navbar";
 
 export default function Home() {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-  };
   return (
     <main className="mx-4 lg:mx-8 xl:mx-[6rem] 2xl:mx-[16rem] m-auto">
-      <Navbar onSearch={handleSearch} />
-      <CitiesTable searchTerm={searchTerm} />
+      
+      <h1 className="text-[2rem] font-bold text-center mt-8 mb-4">
+        Weather Forecast{" "}
+      </h1>
+      <CitiesTable />
     </main>
   );
 }

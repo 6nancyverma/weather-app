@@ -1,7 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import Link from "next/link";
+import { useGlobalContext } from "@/app/context/globalContext";
+import SearchBar from "../SearchBar";
+import Navbar from "../Navbar";
 
 interface City {
   geoname_id: string;
@@ -26,47 +28,38 @@ const sortColumns: SortColumn[] = [
   { name: "population", label: "Population" },
 ];
 
-const CitiesTable: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
-  const [cities, setCities] = useState<City[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [searchTerm, setSearchTerm] = useState<string>("");
+function CitiesTable() {
+  const { cities } = useGlobalContext();
   const [sortColumn, setSortColumn] = useState<keyof City>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  useEffect(() => {
-    const fetchCities = async () => {
-      try {
-        const response = await axios.get(
-          "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/geonames-all-cities-with-a-population-1000/records?limit=20"
-        );
-        setCities(response.data.results);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching cities:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchCities();
-  }, []);
-
-  const sortedCities = cities.slice().sort((a, b) => {
-    const aValue =
-      typeof a[sortColumn] === "string" ? a[sortColumn] : String(a[sortColumn]);
-    const bValue =
-      typeof b[sortColumn] === "string" ? b[sortColumn] : String(b[sortColumn]);
-    if (sortDirection === "asc") {
-      if (typeof aValue === "string" && typeof bValue === "string") {
-        return aValue.localeCompare(bValue);
-      }
-      return 0;
-    } else {
-      if (typeof aValue === "string" && typeof bValue === "string") {
-        return bValue.localeCompare(aValue);
-      }
-      return 0;
-    }
-  });
+  if (!cities) {
+    return <div className="w-full text-center animate-pulse"> Loading...</div>;
+  }
+  const sortedCities = Array.isArray(cities)
+    ? cities.slice().sort((a, b) => {
+        const aValue =
+          typeof a[sortColumn] === "string"
+            ? a[sortColumn]
+            : String(a[sortColumn]);
+        const bValue =
+          typeof b[sortColumn] === "string"
+            ? b[sortColumn]
+            : String(b[sortColumn]);
+        if (sortDirection === "asc") {
+          if (typeof aValue === "string" && typeof bValue === "string") {
+            return aValue.localeCompare(bValue);
+          }
+          return 0;
+        } else {
+          if (typeof aValue === "string" && typeof bValue === "string") {
+            return bValue.localeCompare(aValue);
+          }
+          return 0;
+        }
+      })
+    : [];
 
   const handleSort = (column: keyof City) => {
     if (column === sortColumn) {
@@ -77,66 +70,79 @@ const CitiesTable: React.FC<{ searchTerm: string }> = ({ searchTerm }) => {
     }
   };
 
-  const filteredCities = sortedCities.filter((city) =>
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+  };
+
+  const filteredCities = sortedCities.filter((city: { name: string }) =>
     city.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div>
-      <input
-        type="text"
-        placeholder="Search city..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <table>
-        <thead>
-          <tr>
-            {sortColumns.map((column) => (
-              <th key={column.name} onClick={() => handleSort(column.name)}>
-                {column.label}
-                {sortColumn === column.name && (
-                  <span>{sortDirection === "asc" ? " ▲" : " ▼"}</span>
-                )}
-              </th>
-            ))}
-            <th>Timezone</th>
-            <th>Coordinates</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredCities.map((city) => (
-            <tr key={city.geoname_id}>
-              <td>
-                <Link
-                  href={`/weatherPage/${city.name}`}
-                  target="_blank"
-                  onContextMenu={(
-                    e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
-                  ) => {
-                    e.preventDefault();
-                    window.open(`/weatherPage/${city.name}`, "_blank");
-                  }}
+    <div className="mx-auto w-full  px-4 sm:px-6 lg:px-8">
+      <div className="flex justify-between items-center gap-2">
+        <SearchBar onSearch={handleSearch} />
+        <Navbar />
+      </div>
+
+      <div className="overflow-x-auto">
+        <div className="max-h-screen overflow-y-auto ">
+          <table className="w-full border-collapse table-auto dark:bg-gray-800 my-5">
+            <thead className="my-4 ">
+              <tr className="text-left">
+                {sortColumns.map((column) => (
+                  <th
+                    className="py-3 px-4 cursor-pointer"
+                    key={column.name}
+                    onClick={() => handleSort(column.name)}
+                  >
+                    {column.label}
+                    {sortColumn === column.name && (
+                      <span>{sortDirection === "asc" ? " ▲" : " ▼"}</span>
+                    )}
+                  </th>
+                ))}
+                <th className="py-3 px-4">Timezone</th>
+                <th className="py-3 px-4">Coordinates</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 overflow-y-auto">
+              {filteredCities.map((city: City, index: number) => (
+                <tr
+                  key={city.geoname_id}
+                  className={
+                    index % 2 === 0 ? " dark:bg-gray-900" : " dark:bg-gray-800"
+                  }
                 >
-                  {city.name}
-                </Link>
-              </td>
-              <td>{city.cou_name_en}</td>
-              <td>{city.population}</td>
-              <td>{city.timezone}</td>
-              <td>
-                Lat: {city.coordinates.lat}, Lon: {city.coordinates.lon}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  <td className="py-3 px-4">
+                    <Link
+                      href={{
+                        pathname: `/weatherPage`,
+                        query: {
+                          lat: city.coordinates.lat,
+                          lon: city.coordinates.lon,
+                        },
+                      }}
+                      target="_blank"
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 text-transparent bg-clip-text hover:underline"
+                    >
+                      {city.name}
+                    </Link>
+                  </td>
+                  <td className="py-2 px-2">{city.cou_name_en}</td>
+                  <td className="py-2 px-2">{city.population}</td>
+                  <td className="py-2 px-2">{city.timezone}</td>
+                  <td className="py-2 px-2">
+                    Lat: {city.coordinates.lat}, Lon: {city.coordinates.lon}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
-};
+}
 
 export default CitiesTable;

@@ -1,55 +1,82 @@
+"use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Image from "next/image";
+import Link from "next/link";
+import Temperature from "@/app/_Components/Temperature";
+import {
+  useGlobalContext,
+  useGlobalContextUpdate,
+} from "@/app/context/globalContext";
+import Sunset from "@/app/_Components/Sunset";
+import Wind from "@/app/_Components/Wind";
+import FeelsLike from "@/app/_Components/FeelsLike";
+import Humidity from "@/app/_Components/Humidity";
+import Visibility from "@/app/_Components/Visibility";
+import Map from "@/app/_Components/Map";
+import { Phone } from "lucide-react";
+import AirPollution from "../_Components/AirPollution";
+import Pressure from "../_Components/Pressure";
 
-interface WeatherData {
-  main: {
-    temp: number;
-    temp_min: number;
-    temp_max: number;
-    humidity: number;
-    pressure: number;
-  };
-  weather: {
-    description: string;
-  }[];
-  wind: {
-    speed: number;
-  };
-}
-
-const WeatherPage: React.FC<{ cityName: string }> = ({ cityName }) => {
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+export default function WeatherPage({
+  searchParams,
+}: {
+  searchParams: { lat: number; lon: number };
+}) {
+  const { activeCityCoords } = useGlobalContext();
+  const { setActiveCityCoords } = useGlobalContextUpdate();
 
   useEffect(() => {
-    const fetchWeatherData = async () => {
-      try {
-        const apiKey = "YOUR_API_KEY"; // Replace with your OpenWeatherMap API key
-        const response = await axios.get(
-          `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric`
-        );
-        setWeatherData(response.data);
-      } catch (error) {
-        console.error("Error fetching weather data:", error);
-      }
-    };
+    // Update activeCityCoords when searchParams change
+    setActiveCityCoords([searchParams.lat, searchParams.lon]);
+  }, [searchParams, setActiveCityCoords]);
+  console.log("activeCords--------", activeCityCoords);
 
-    fetchWeatherData();
-  }, [cityName]);
-
-  if (!weatherData) {
-    return <div>Loading weather data...</div>;
-  }
+  console.log("params", searchParams.lat, " ", searchParams.lon);
 
   return (
-    <div>
-      <h2>Weather for {cityName}</h2>
-      <p>Temperature: {weatherData.main.temp}°C</p>
-      <p>Weather: {weatherData.weather[0].description}</p>
-      <p>Humidity: {weatherData.main.humidity}%</p>
-      <p>Wind Speed: {weatherData.wind.speed} m/s</p>
-      <p>Pressure: {weatherData.main.pressure} hPa</p>
-    </div>
-  );
-};
+    <>
+      <main className="mx-[1rem] lg:mx-[2rem] xl:mx-[6rem] 2xl:mx-[16rem] m-auto py-5">
+        
+        <div className="pb-4 flex flex-col gap-4 md:flex-row">
+          <div className="flex flex-col gap-4 w-full min-w-[18rem] md:w-[35rem]">
+            <Temperature />
+            <div className="flex flex-col gap-4">
+              <Visibility />
+              <Pressure />
+            </div>
+          </div>
+          <div className="flex flex-col w-full">
+            <div className="instruments grid h-full gap-4 col-span-full sm-2:col-span-2 lg:grid-cols-3 ">
+              <AirPollution />
+              <Sunset />
+              <Wind />
+              <FeelsLike />
+              <Humidity />
+            </div>
+            <div className="mapbox-con mt-4 h-full flex gap-4">
+              <Map />
+            </div>
+          </div>
+        </div>
 
-export default WeatherPage;
+        <footer className="py-4 flex justify-center items-center flex-col gap-2 pb-8">
+          <p className="footer-text text-sm flex items-center gap-1">
+            Made by
+            <Image src={"/logo-white.svg"} alt="logo" width={20} height={20} />
+            <Link
+              href="https://nancyverma-reactportfolio1.netlify.app"
+              target="_blank"
+              className=" text-green-300 font-bold"
+            >
+              Nancy verma
+            </Link>
+          </p>
+          <p className="flex items-center gap-1">
+            <Phone size={15} />
+            <span>7985192890</span>
+          </p>
+        </footer>
+      </main>
+    </>
+  );
+}
