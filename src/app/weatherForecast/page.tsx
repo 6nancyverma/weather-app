@@ -2,17 +2,18 @@
 import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import Temperature from "@/app/_Components/Temperature";
-import { useGlobalContextUpdate } from "@/app/context/globalContext";
 import Sunset from "@/app/_Components/Sunset";
 import Wind from "@/app/_Components/Wind";
 import FeelsLike from "@/app/_Components/FeelsLike";
 import Humidity from "@/app/_Components/Humidity";
 import Visibility from "@/app/_Components/Visibility";
-import { Phone } from "lucide-react";
-import AirPollution from "../_Components/AirPollution";
-import Pressure from "../_Components/Pressure";
-import dynamic from "next/dynamic";
+import AirPollution from "@/app/_Components/AirPollution";
+import Pressure from "@/app/_Components/Pressure";
+
+import { useGlobalContextUpdate } from "@/app/context/globalContext";
+import { phone } from "../utils/icons";
 
 const DynamicMap = dynamic(() => import("@/app/_Components/Map"), {
   ssr: false,
@@ -26,7 +27,7 @@ function WeatherForecast({
   const { setActiveCityCoords } = useGlobalContextUpdate();
 
   useEffect(() => {
-    setActiveCityCoords([searchParams.lat, searchParams.lon]);
+    setActiveCityCoords(searchParams.lat, searchParams.lon);
   }, [searchParams, setActiveCityCoords]);
 
   return (
@@ -67,7 +68,7 @@ function WeatherForecast({
             </Link>
           </p>
           <p className="flex items-center gap-1">
-            <Phone size={15} />
+            {phone}
             <span>7985192890</span>
           </p>
         </footer>
