@@ -14,10 +14,8 @@ function AirPollution() {
     !airQuality.list[0].main
   ) {
     return (
-      <div className="animate-pulse h-[12rem] p-5 w-full col-span-2 md:col-span-full border rounded-lg flex flex-col gap-8 dark:bg-dark-grey shadow-sm dark:shadow-none col-span-full sm-2:col-span-2 md:col-span-2 xl:col-span-2">
-        <div className="h-8 w-24 bg-gray-200 rounded animate-pulse"></div>
-        <div className="h-4 w-full bg-gray-200 rounded-full animate-pulse"></div>
-        <div className="h-4 w-1/2 bg-gray-200 rounded-full animate-pulse"></div>
+      <div className="h-[12rem]  w-full p-5 border rounded-lg ">
+        <div className="bg-gray-300 w-full h-full animate-pulse"></div>
       </div>
     );
   }

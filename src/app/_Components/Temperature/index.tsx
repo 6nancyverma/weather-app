@@ -35,7 +35,14 @@ function Temperature() {
   }, [timezone]);
 
   if (!forecast || !weather) {
-    return <div className="animate-pulse p-6 flex w-full " />;
+    return (
+      <div className="pt-6 pb-5 px-4 border rounded-lg h-full flex flex-col justify-between  shadow-sm animate-pulse">
+        <div className="w-full h-4 bg-gray-300 rounded-full mb-2"></div>
+        <div className="w-full h-10 bg-gray-300 rounded-full mb-2"></div>
+        <div className="w-full h-64 bg-gray-300 rounded-lg mb-2"></div>
+        <div className="w-full h-8 bg-gray-300 rounded-full"></div>
+      </div>
+    );
   }
 
   const temp = kelvinToCelsius(main?.temp);

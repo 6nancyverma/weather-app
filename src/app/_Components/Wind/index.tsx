@@ -12,7 +12,9 @@ function Wind() {
 
   if (!windSpeed || !windDir) {
     return (
-      <div className="animate-pulse h-[12rem] p-5 w-full"></div>
+      <div className="h-[12rem] w-full p-5 border rounded-lg ">
+        <div className="bg-gray-300 w-full h-full animate-pulse"></div>
+      </div>
     );
   }
 

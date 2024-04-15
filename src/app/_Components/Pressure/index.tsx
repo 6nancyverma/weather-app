@@ -7,7 +7,11 @@ function Pressure() {
   const { forecast } = useGlobalContext();
 
   if (!forecast || !forecast?.main || !forecast?.main?.pressure) {
-    return <div className="h-[12rem] w-full animate-pulse" />;
+    return (
+      <div className="h-[12rem] w-full p-5 border rounded-lg ">
+        <div className="bg-gray-300 w-full h-full animate-pulse"></div>
+      </div>
+    );
   }
 
   const { pressure } = forecast?.main;

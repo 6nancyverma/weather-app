@@ -7,9 +7,12 @@ function Humidity() {
   const { forecast } = useGlobalContext();
 
   if (!forecast || !forecast?.main || !forecast?.main?.humidity) {
-    return <div className="h-[12rem] animate-pulse w-full bg-gray-200"> </div>;
+    return (
+      <div className="h-[12rem] w-full p-5 border rounded-lg ">
+        <div className="bg-gray-300 w-full h-full animate-pulse"></div>
+      </div>
+    );
   }
-
   const { humidity } = forecast?.main;
 
   const getHumidityText = (humidity: number) => {

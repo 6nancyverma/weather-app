@@ -8,7 +8,11 @@ function FeelsLike() {
   const { forecast } = useGlobalContext();
 
   if (!forecast || !forecast?.main || !forecast?.main?.feels_like) {
-    return <div className="h-[12rem] w-full animate-pulse "></div>;
+    return (
+      <div className="h-[12rem] w-full p-5 border rounded-lg ">
+        <div className="bg-gray-300 w-full h-full animate-pulse"></div>
+      </div>
+    );
   }
 
   const { feels_like, temp_min, temp_max } = forecast?.main;

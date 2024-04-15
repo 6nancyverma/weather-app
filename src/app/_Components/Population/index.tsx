@@ -9,7 +9,7 @@ function Population() {
   const { city } = fiveDayForecast;
 
   if (!fiveDayForecast || !city) {
-    return <div className="h-[12rem] w-full animate-pulse"></div>;
+    return <div className="h-[12rem] w-full bg-gray-300 animate-pulse  " />;
   }
 
   return (

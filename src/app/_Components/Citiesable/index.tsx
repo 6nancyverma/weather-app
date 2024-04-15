@@ -122,7 +122,7 @@ function CitiesTable() {
                   <td className="py-3 px-4">
                     <Link
                       href={{
-                        pathname: `/weatherForecast`,
+                        pathname: `weatherForecast/`,
                         query: {
                           lat: city.coordinates.lat,
                           lon: city.coordinates.lon,
