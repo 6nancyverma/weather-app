@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useGlobalContext } from "@/app/context/globalContext";
-import SearchBar from "../SearchBar";
+import axios from "axios";
 import Navbar from "../Navbar";
+import SearchBar from "../SearchBar";
 
 interface City {
   geoname_id: string;
@@ -29,43 +29,118 @@ const sortColumns: SortColumn[] = [
 ];
 
 function CitiesTable() {
-  const { cities } = useGlobalContext();
+  const [cities, setCities] = useState<City[]>([]);
   const [sortColumn, setSortColumn] = useState<keyof City>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  if (cities >= 0) {
-    return (
-      <div className="w-full text-center text-[2rem] animate-pulse">
-        {" "}
-        Loading...
-      </div>
-    );
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/geonames-all-cities-with-a-population-1000/records?limit=99"
+        );
+
+        // Log the entire API response
+        console.log("API Response:", response.data);
+
+        // Check if response.data.results exists
+        if (response.data && response.data.results) {
+          // Log the results for debugging
+          console.log("Results:", response.data.results);
+
+          // Check if results are available
+          if (response.data.results.length > 0) {
+            const formattedCities = response.data.results.map((record: any) => {
+              // Log each record to understand its structure
+              console.log("Record:", record);
+
+              // Ensure the record has the expected properties
+              return {
+                // geoname_id: record.fields?.geoname_id || "N/A",
+                geoname_id: record.fields?.geoname,
+                name: record?.name || "Unknown",
+                // name:record.cou_name_en
+                cou_name_en: record?.cou_name_en || "Unknown",
+                population: record?.population || 0,
+                timezone: record?.timezone || "Unknown",
+                coordinates: {
+                  lon: record.coordinates?.lon || 0,
+                  lat: record.coordinates?.lat || 0,
+                },
+              };
+            });
+
+            setCities(formattedCities);
+          } else {
+            console.error("No results found in response data.");
+          }
+        } else {
+          console.error("No results found in response data.");
+        }
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // const fetchData = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/geonames-all-cities-with-a-population-1000/records?limit=99"
+  //     );
+
+  //     // Check if records exist in the response
+  //     if (response.data && response.data.records) {
+  //       // Map the records to your City structure
+  //       const cityData = response.data.records.map((record: any) => {
+  //         const fields = record.fields;
+  //         return {
+  //           geoname_id: fields.geoname_id || "N/A", // Ensure fallback if geoname_id is undefined
+  //           name: fields.name || "Unknown",
+  //           cou_name_en: fields.cou_name_en || "Unknown",
+  //           population: fields.population || 0,
+  //           timezone: fields.timezone || "Unknown",
+  //           coordinates: {
+  //             lon: fields.coordinates ? fields.coordinates.lon : 0,
+  //             lat: fields.coordinates ? fields.coordinates.lat : 0,
+  //           },
+  //         };
+  //       });
+
+  //       setCities(cityData);
+  //     } else {
+  //       console.log("No records found in response data.");
+  //     }
+  //   } catch (error) {
+  //     console.log("Error fetching cities:", error);
+  //   }
+  // };
+
   const sortedCities = Array.isArray(cities)
     ? cities.slice().sort((a, b) => {
-        const aValue =
-          typeof a[sortColumn] === "string"
-            ? a[sortColumn]
-            : String(a[sortColumn]);
-        const bValue =
-          typeof b[sortColumn] === "string"
-            ? b[sortColumn]
-            : String(b[sortColumn]);
+        const aValue = a[sortColumn];
+        const bValue = b[sortColumn];
+
         if (sortDirection === "asc") {
-          if (typeof aValue === "string" && typeof bValue === "string") {
-            return aValue.localeCompare(bValue);
-          }
-          return 0;
+          return typeof aValue === "string"
+            ? aValue.localeCompare(bValue as string)
+            : aValue > bValue
+            ? 1
+            : -1;
         } else {
-          if (typeof aValue === "string" && typeof bValue === "string") {
-            return bValue.localeCompare(aValue);
-          }
-          return 0;
+          return typeof bValue === "string"
+            ? bValue.localeCompare(aValue as string)
+            : bValue > aValue
+            ? 1
+            : -1;
         }
       })
     : [];
 
+  // Handle sorting
   const handleSort = (column: keyof City) => {
     if (column === sortColumn) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -75,11 +150,13 @@ function CitiesTable() {
     }
   };
 
+  // Handle search
   const handleSearch = (value: string) => {
     setSearchTerm(value);
   };
 
-  const filteredCities = sortedCities.filter((city: { name: string }) =>
+  // Filter cities based on search term
+  const filteredCities = sortedCities.filter((city: City) =>
     city.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -91,15 +168,15 @@ function CitiesTable() {
       </div>
 
       <div className="overflow-x-auto">
-        <div className="max-h-screen overflow-y-auto ">
+        <div className="max-h-screen overflow-y-auto">
           <table className="w-full border-collapse table-auto dark:bg-gray-800 my-5">
-            <thead className="my-4 ">
+            <thead>
               <tr className="text-left">
                 {sortColumns.map((column) => (
                   <th
-                    className="py-3 px-4 cursor-pointer"
                     key={column.name}
                     onClick={() => handleSort(column.name)}
+                    className="py-3 px-4 cursor-pointer"
                   >
                     {column.label}
                     {sortColumn === column.name && (
@@ -114,9 +191,9 @@ function CitiesTable() {
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700 overflow-y-auto">
               {filteredCities.map((city: City, index: number) => (
                 <tr
-                  key={city.geoname_id}
+                  key={`${city.geoname_id}-${city.name}`} // Unique key by combining geoname_id and name
                   className={
-                    index % 2 === 0 ? " dark:bg-gray-900" : " dark:bg-gray-800"
+                    index % 2 === 0 ? "dark:bg-gray-900" : "dark:bg-gray-800"
                   }
                 >
                   <td className="py-3 px-4">

@@ -15,8 +15,7 @@ function ThemeDropdown() {
       <div className="dropdown-content">
         <button
           onClick={toggleTheme}
-          className={`border  px-4 py-3 rounded-md shadow-md hover:shadow-lgtransition duration-300 ease-in-out ${buttonBorderStyle}`}
-        >
+          className={`border  px-4 py-3 rounded-md shadow-md hover:shadow-lgtransition duration-300 ease-in-out ${buttonBorderStyle}`}>
           {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
         </button>
       </div>
